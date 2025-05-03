@@ -1,0 +1,131 @@
+# Full example of values configuration
+
+# Application Type Configuration
+antpolis:
+  # Allowed values: nodejs-app, dotnet-app, java-app, nextJS, vue
+  type: "nodejs-app"
+  deploymentType: "helm"
+  # Allowed values: api-backend, frontend, grpc-backend
+  layer: "api-backend"
+
+# Application Settings
+app:
+  url: "myapp.example.com"
+  # Allowed values: prod, staging, dev, tipsy, stable
+  environment: "prod"
+  port: 3000
+
+docker:
+  repo: "mycompany/myapp"
+  tag: "1.0.0"
+  imagePullSecrets:
+    - name: dockerhub
+
+# Ingress Configuration
+ingress:
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-issuer"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Additional custom annotations
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+  domains:
+    - name: "myapp.example.com"
+      paths:
+        path: "/"
+        pathType: "Prefix"
+        service:
+          name: "myapp-service"
+          port: 3000
+    - name: "api.myapp.example.com"
+      paths:
+        path: "/api"
+        pathType: "Prefix"
+        service:
+          name: "myapp-api-service"
+          port: 8080
+
+# Persistence Configuration
+persistence:
+  enabled: true
+  volumes:
+    data:
+      enabled: true
+      size: 10Gi
+      storageClass: "standard"
+      mountPath: "/app/data"
+      claim:
+        enabled: true
+        size: 10Gi
+        storageClass: "standard"
+    logs:
+      enabled: true
+      size: 5Gi
+      storageClass: "standard"
+      mountPath: "/app/logs"
+      claim:
+        enabled: true
+        size: 5Gi
+        storageClass: "standard"
+
+# ConfigMap Configuration
+configMap:
+  enabled: true
+  value:
+    files:
+      config.json:
+        name: "config.json"
+        content: |
+          {
+            "apiVersion": "v1",
+            "environment": "production",
+            "features": {
+              "featureA": true,
+              "featureB": false
+            }
+          }
+        mountPath: "/app/config.json"
+        subPath: "config.json"
+      app-config.yaml:
+        name: "app-config.yaml"
+        content: |
+          server:
+            port: 3000
+            timeout: 30s
+          logging:
+            level: info
+            format: json
+        mountPath: "/app/config/app-config.yaml"
+        subPath: "app-config.yaml"
+    env:
+      NODE_ENV: "production"
+      API_VERSION: "v1"
+      LOG_LEVEL: "info"
+      CACHE_TTL: "3600"
+      METRICS_ENABLED: "true"
+
+# Secrets Configuration
+secrets:
+  enabled: true
+  value:
+    # Application secrets
+    API_KEY: "your-api-key"
+    JWT_SECRET: "your-jwt-secret"
+    
+    # Database credentials
+    DB_HOST: "db.example.com"
+    DB_PORT: "5432"
+    DB_NAME: "myapp"
+    DB_USER: "myapp_user"
+    DB_PASSWORD: "your-db-password"
+    
+    # External service credentials
+    REDIS_URL: "redis://redis.example.com:6379"
+    AWS_ACCESS_KEY_ID: "your-aws-key"
+    AWS_SECRET_ACCESS_KEY: "your-aws-secret"
+    
+    # OAuth credentials
+    OAUTH_CLIENT_ID: "your-oauth-client-id"
+    OAUTH_CLIENT_SECRET: "your-oauth-client-secret"

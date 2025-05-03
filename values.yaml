@@ -1,11 +1,16 @@
+# Application Type Configuration
 antpolis:
+  # Allowed values: nodejs-app, dotnet-app, java-app, nextJS, vue
   type: "nodejs-app"
   deploymentType: "helm"
-  layer: "application"
+  # Allowed values: api-backend, frontend, grpc-backend
+  layer: "api-backend"
 
+# Application Settings
 app:
-  url: 
-  environment: 
+  url:
+  # Allowed values: prod, staging, dev, tipsy, stable
+  environment:
   port: 
 
 docker:
