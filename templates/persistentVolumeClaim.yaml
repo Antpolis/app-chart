@@ -1,0 +1,29 @@
+{{- $persistence := fromYaml (include "antpolis-app.mergePersistence" .) }}
+{{- if $persistence.enabled }}
+{{- range $name, $volume := $persistence.volumes }}
+{{- if and $volume.enabled $volume.claim.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $.Release.Name }}-{{ $name }}-pvc
+  namespace: default
+  labels:
+    {{- include "antpolis-app.labels" $ | nindent 4 }}
+spec:
+  {{- if $volume.enabled }}
+  volumeName: {{ $.Release.Name }}-{{ $name }}-pv
+  {{- end }}
+  {{- if $volume.claim.storageClass }}
+  storageClassName: {{ $volume.claim.storageClass }}
+  {{- else }}
+  storageClassName: ""
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $volume.claim.size }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

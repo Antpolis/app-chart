@@ -1,0 +1,34 @@
+{{- $ingress := fromYaml (include "antpolis-app.mergeIngress" .) }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  labels:
+    {{- include "antpolis-app.labels" . | nindent 4 }}
+  {{- with $ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ $ingress.className }}
+  tls:
+    - hosts:
+      {{- range $ingress.domains }}
+      - {{ .name }}
+      secretName: {{ $.Release.Name }}-ssl-tls
+  rules:
+  {{- range $ingress.domains }}
+  - host: {{ .name }}
+    http:
+      paths:
+      {{- range .paths }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ .service.name }}
+            port:
+              number: {{ .service.port }}
+      {{- end }}
+  {{- end }}
+{{- end }}

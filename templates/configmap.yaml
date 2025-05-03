@@ -1,0 +1,16 @@
+{{- $configMap := fromYaml (include "antpolis-app.mergeConfigMap" .) }}
+{{- if $configMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configs
+  labels:
+    {{- include "antpolis-app.labels" . | nindent 4 }}
+data:
+  {{- if $configMap.wordpress.files }}
+  {{- range $key, $file := $configMap.wordpress.files }}
+  {{ $file.name }}: |
+    {{- $file.content | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}

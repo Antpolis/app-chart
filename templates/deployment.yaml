@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  labels:
+    {{- include "antpolis-app.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "antpolis-app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "antpolis-app.selectorLabels" . | nindent 8 }}
+        {{- include "antpolis-app.labels" . | nindent 8 }}
+      annotations:
+        checksum/image: {{ .Values.docker.tag }}
+    spec:
+      securityContext:
+        fsGroup: 33  # Set the group ownership to match the 'www-data' user
+      containers:
+      - name: {{ .Release.Name }}-app
+        image: {{ .Values.docker.repo }}:{{ .Values.docker.tag }}
+        imagePullPolicy: Always
+        {{- if or .Values.secrets.enabled (and .Values.configMap.enabled .Values.configMap.wordpress.env) }}
+        envFrom:
+        {{- if .Values.secrets.enabled }}
+        - secretRef:
+            name: {{ .Release.Name }}-secrets
+        {{- end }}
+        {{- if and .Values.configMap.enabled .Values.configMap.wordpress.env }}
+        - configMapRef:
+            name: {{ .Release.Name }}-env
+        {{- end }}
+        {{- end }}
+        volumeMounts:
+          {{- if and .Values.configMap.enabled .Values.configMap.wordpress.files }}
+          {{- range $key, $file := .Values.configMap.wordpress.files }}
+          - name: config-volume
+            mountPath: {{ $file.mountPath }}
+            subPath: {{ $file.subPath }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.persistence.enabled }}
+          {{- range $name, $volume := .Values.persistence.volumes }}
+          {{- if and $volume.enabled $volume.claim.enabled }}
+          - name: {{ $name }}
+            mountPath: {{ $volume.mountPath }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        {{- range $name, $volume := .Values.persistence.volumes }}
+        {{- if and $volume.enabled $volume.claim.enabled }}
+        - name: {{ $name }}
+          persistentVolumeClaim:
+            claimName: {{ $.Release.Name }}-{{ $name }}-pvc
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if and .Values.configMap.enabled .Values.configMap.wordpress.files }}
+        - name: config-volume
+          configMap:
+            name: {{ .Release.Name }}-configs
+        {{- end }}
