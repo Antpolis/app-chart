@@ -1,12 +1,11 @@
-{{- $persistence := fromYaml (include "antpolis-app.mergePersistence" .) }}
-{{- if $persistence.enabled }}
-{{- range $name, $volume := $persistence.volumes }}
+{{- if .Values.persistence.enabled }}
+{{- range $name, $volume := .Values.persistence.volumes }}
 {{- if and $volume.enabled $volume.claim.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ $.Release.Name }}-{{ $name }}-pvc
-  namespace: default
+  namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "antpolis-app.labels" $ | nindent 4 }}
 spec:

@@ -16,6 +16,13 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   domains:
+    - name: "{{ .Values.app.url }}"
+      paths:  
+        path: "/"
+        pathType: "Prefix"
+        service:
+          name: "{{ .Release.Name }}-service"
+          port: {{ .Values.app.port }}
     # - name: "{{ .Values.app.url }}"
     #   paths:
     #     - path: "/"
@@ -35,22 +42,6 @@ ingress:
     #       service:
     #         name: "{{ .Release.Name }}-admin"
     #         port: 3000
-
-# User Ingress Overrides
-# This section allows you to override or add to the default ingress configuration
-# Example:
-userIngress:
-  # className: nginx-user  # Optional: override ingress class
- # annotations:  # Optional: add or override annotations
- #   custom.annotation: "value"
- # domains:  # Optional: add additional domains
- #   - name: "custom.example.com"
- #     paths:
- #       - path: "/"
- #         pathType: "Prefix"
- #         service:
- #           name: "custom-service"
- #           port: 8080
 
 # Optional Components Configuration
 persistence:
@@ -77,14 +68,6 @@ persistence:
     #     size: 5Gi
     #     storageClass: ""
 
-# User Persistence Overrides
-# This section allows you to override or add to the default persistence configuration
-# Example:
-userPersistence:
- enabled: false  # Optional: override enabled state
- volumes:  # Optional: add or override volumes
-   
-
 configMap:
   enabled: false
   value:
@@ -96,22 +79,3 @@ configMap:
 secrets:
   enabled: false
   value:
-
-
-# User ConfigMap Overrides
-# This section allows you to override or add to the default configmap configuration
-# Example:
-userConfigMap:
- enabled: false  # Optional: override enabled state
- values:
-   files:
-     
-   env:
-
-# User Secrets Overrides
-# This section allows you to override or add to the default secrets configuration
-# Example:
-userSecrets:
- enabled: false  # Optional: override enabled state
- values:
-   

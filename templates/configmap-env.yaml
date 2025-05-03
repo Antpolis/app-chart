@@ -1,4 +1,4 @@
-{{- if and .Values.configMap.enabled .Values.configMap.wordpress.env }}
+{{- if and .Values.configMap.enabled .Values.configMap.value.env }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "antpolis-app.labels" . | nindent 4 }}
 data:
-  {{- range $key, $value := .Values.configMap.wordpress.env }}
+  {{- range $key, $value := .Values.configMap.value.env }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
 {{- end }}

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-deployment
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "antpolis-app.labels" . | nindent 4 }}
 spec:
@@ -23,23 +24,23 @@ spec:
       - name: {{ .Release.Name }}-app
         image: {{ .Values.docker.repo }}:{{ .Values.docker.tag }}
         imagePullPolicy: Always
-        {{- if or .Values.secrets.enabled (and .Values.configMap.enabled .Values.configMap.wordpress.env) }}
+        {{- if or .Values.secrets.enabled (and .Values.configMap.enabled .Values.configMap.value.env) }}
         envFrom:
         {{- if .Values.secrets.enabled }}
         - secretRef:
             name: {{ .Release.Name }}-secrets
         {{- end }}
-        {{- if and .Values.configMap.enabled .Values.configMap.wordpress.env }}
+        {{- if and .Values.configMap.enabled .Values.configMap.value.env }}
         - configMapRef:
-            name: {{ .Release.Name }}-env
+            name: {{ .Release.Name }}-environment
         {{- end }}
         {{- end }}
         volumeMounts:
-          {{- if and .Values.configMap.enabled .Values.configMap.wordpress.files }}
-          {{- range $key, $file := .Values.configMap.wordpress.files }}
+          {{- if and .Values.configMap.enabled .Values.configMap.value.files }}
+          {{- range $key, $file := .Values.configMap.value.files }}
           - name: config-volume
             mountPath: {{ $file.mountPath }}
-            subPath: {{ $file.subPath }}
+            subPath: {{ $key }}
           {{- end }}
           {{- end }}
           {{- if .Values.persistence.enabled }}
@@ -60,7 +61,7 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
-        {{- if and .Values.configMap.enabled .Values.configMap.wordpress.files }}
+        {{- if and .Values.configMap.enabled .Values.configMap.value.files }}
         - name: config-volume
           configMap:
             name: {{ .Release.Name }}-configs
