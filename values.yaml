@@ -1,5 +1,5 @@
 antpolis:
-  type: "wordpress"
+  type: "nodejs-app"
   deploymentType: "helm"
   layer: "application"
 
@@ -16,25 +16,25 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   domains:
-    - name: "{{ .Values.app.url }}"
-      paths:
-        - path: "/"
-          pathType: "Prefix"
-          service:
-            name: "{{ .Release.Name }}-service"
-            port: {{ .Values.app.port }}
-        - path: "/api"
-          pathType: "Prefix"
-          service:
-            name: "{{ .Release.Name }}-api"
-            port: 8080
-    - name: "admin.{{ .Values.app.url }}"
-      paths:
-        - path: "/"
-          pathType: "Prefix"
-          service:
-            name: "{{ .Release.Name }}-admin"
-            port: 3000
+    # - name: "{{ .Values.app.url }}"
+    #   paths:
+    #     - path: "/"
+    #       pathType: "Prefix"
+    #       service:
+    #         name: "{{ .Release.Name }}-service"
+    #         port: {{ .Values.app.port }}
+    #     - path: "/api"
+    #       pathType: "Prefix"
+    #       service:
+    #         name: "{{ .Release.Name }}-api"
+    #         port: 8080
+    # - name: "admin.{{ .Values.app.url }}"
+    #   paths:
+    #     - path: "/"
+    #       pathType: "Prefix"
+    #       service:
+    #         name: "{{ .Release.Name }}-admin"
+    #         port: 3000
 
 # User Ingress Overrides
 # This section allows you to override or add to the default ingress configuration
@@ -56,145 +56,62 @@ userIngress:
 persistence:
   enabled: false
   volumes:
-    wp-uploads:
-      enabled: false
-      size: 10Gi
-      storageClass: ""
-      hostPath: "/data/projects/{{ .Values.app.url }}/wp-uploads"
-      mountPath: "/var/www/html/wp-content/uploads"
-      claim:
-        enabled: false
-        size: 10Gi
-        storageClass: ""
-    wp-plugins:
-      enabled: false
-      size: 5Gi
-      storageClass: ""
-      hostPath: "/data/projects/{{ .Values.app.url }}/wp-plugins"
-      mountPath: "/var/www/html/wp-content/plugins"
-      claim:
-        enabled: false
-        size: 5Gi
-        storageClass: ""
+    # wp-uploads:
+    #   enabled: false
+    #   size: 10Gi
+    #   storageClass: ""
+    #   hostPath: "/data/projects/{{ .Values.app.url }}/wp-uploads"
+    #   mountPath: "/var/www/html/wp-content/uploads"
+    #   claim:
+    #     enabled: false
+    #     size: 10Gi
+    #     storageClass: ""
+    # wp-plugins:
+    #   enabled: false
+    #   size: 5Gi
+    #   storageClass: ""
+    #   hostPath: "/data/projects/{{ .Values.app.url }}/wp-plugins"
+    #   mountPath: "/var/www/html/wp-content/plugins"
+    #   claim:
+    #     enabled: false
+    #     size: 5Gi
+    #     storageClass: ""
 
 # User Persistence Overrides
 # This section allows you to override or add to the default persistence configuration
 # Example:
 userPersistence:
- enabled: true  # Optional: override enabled state
+ enabled: false  # Optional: override enabled state
  volumes:  # Optional: add or override volumes
-   custom-volume:  # Add a new volume
-     enabled: true
-     size: 20Gi
-     storageClass: "standard"
-     hostPath: "/data/custom"
-     mountPath: "/mnt/custom"
-     claim:
-       enabled: true
-       size: 20Gi
-       storageClass: "standard"
-   wp-uploads:  # Override existing volume
-     size: 50Gi  # Change size of existing volume
-     claim:
-       size: 50Gi  # Update claim size to match
+   
 
 configMap:
   enabled: false
   value:
     files:
-      ads:
-        name: "ads.txt"
-        content: |
-          google.com, pub-2898891285912970, DIRECT, f08c47fec0942fa0
-        mountPath: "/var/www/html/ads.txt"
-        subPath: "ads.txt"
-      robots:
-        name: "robots.txt"
-        content: |
-          {{ .Values.ROBOTS_TEXT }}
-        mountPath: "/var/www/html/robots.txt"
-        subPath: "robots.txt"
-      advanced-cache:
-        name: "advanced-cache.php"
-        mountPath: "/var/www/html/wp-content/advanced-cache.php"
-        subPath: "advanced-cache.php"
-        content: |
-          <?php
-          // WP SUPER CACHE 1.2
-          function wpcache_broken_message() {
-              global $wp_cache_config_file;
-              if ( isset( $wp_cache_config_file ) == false ) {
-                      return '';
-              }
-
-              $doing_ajax     = defined( 'DOING_AJAX' ) && DOING_AJAX;
-              $xmlrpc_request = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
-              $rest_request   = defined( 'REST_REQUEST' ) && REST_REQUEST;
-              $robots_request = strpos( $_SERVER['REQUEST_URI'], 'robots.txt' ) != false;
-
-              $skip_output = ( $doing_ajax || $xmlrpc_request || $rest_request || $robots_request );
-              if ( false == strpos( $_SERVER['REQUEST_URI'], 'wp-admin' ) && ! $skip_output ) {
-                      echo '<!-- WP Super Cache is installed but broken. The constant WPCACHEHOME must be set in the file wp-config.php and point at the WP Super Cache plugin directory. -->';
-              }
-          }
-
-          if ( false == defined( 'WPCACHEHOME' ) ) {
-              define( 'ADVANCEDCACHEPROBLEM', 1 );
-          } elseif ( ! include_once WPCACHEHOME . 'wp-cache-phase1.php' ) {
-              if ( ! @is_file( WPCACHEHOME . 'wp-cache-phase1.php' ) ) {
-                      define( 'ADVANCEDCACHEPROBLEM', 1 );
-              }
-          }
-          if ( defined( 'ADVANCEDCACHEPROBLEM' ) ) {
-              register_shutdown_function( 'wpcache_broken_message' );
-          }
+      
     env:
-      PHP_DISPLAY_ERROR: "{{ .Values.PHP_DISPLAY_ERROR }}"
-      WP_CACHE_HOME: "/var/www/html/wp-content/plugins/wp-super-cache/"
-      WP_CONTENT_DIR: "/var/www/html/wp-content"
-      WP_HOME: "https://{{ .Values.app.url }}"
-      WP_SITEURL: "https://{{ .Values.app.url }}"
+      
 
 secrets:
   enabled: false
   value:
-    DB_NAME: "{{ .Values.db.database }}"
-    DB_USER: "{{ .Values.db.username }}"
-    DB_PASSWORD: "{{ .Values.db.password }}"
-    DB_HOST: "{{ .Values.db.host }}"
-    WP_DEBUG: "{{ .Values.WP_DEBUG }}"
-    GTM_ID: "{{ .Values.GTM_ID }}"
-    DEPLOY_VERSION: "{{ .Values.DEPLOY_VERSION }}"
-    LOCALE: "{{ .Values.LOCALE }}"
+
 
 # User ConfigMap Overrides
 # This section allows you to override or add to the default configmap configuration
 # Example:
 userConfigMap:
  enabled: false  # Optional: override enabled state
- wordpress:
+ values:
    files:
-     custom-file:  # Add new file
-       name: "custom.php"
-       content: |
-         <?php
-         // Custom PHP configuration
-         define('CUSTOM_CONSTANT', 'value');
-       mountPath: "/var/www/html/custom.php"
-       subPath: "custom.php"
-     robots:  # Override existing file
-       content: |
-         User-agent: *
-         Disallow: /admin/
+     
    env:
-     CUSTOM_ENV: "custom_value"
-     PHP_DISPLAY_ERROR: "On"  # Override existing env var
 
 # User Secrets Overrides
 # This section allows you to override or add to the default secrets configuration
 # Example:
 userSecrets:
  enabled: false  # Optional: override enabled state
- wordpress:
-   CUSTOM_SECRET: "mysecret"  # Add new secret
-   DB_PASSWORD: "newpassword"  # Override existing secret
+ values:
+   
