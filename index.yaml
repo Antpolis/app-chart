@@ -3,6 +3,16 @@ entries:
   antpolis-apps:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2025-05-03T16:49:23.568115821Z"
+    description: A Helm chart for Apps deployment
+    digest: 825e27ee0817b71f77ddac57330fb76211554be58249eae4895390f37c4aaa17
+    name: antpolis-apps
+    type: application
+    urls:
+    - https://github.com/Antpolis/app-chart/releases/download/antpolis-apps-0.2.0/antpolis-apps-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-05-03T09:58:25.313163104Z"
     description: A Helm chart for Apps deployment
     digest: 3afdb0427ea50b8dfed2282a10b7653c37c3114a0b1dc90c90ea9fef141fdc89
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/Antpolis/app-chart/releases/download/antpolis-apps-0.1.0/antpolis-apps-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-03T09:58:25.313172732Z"
+generated: "2025-05-03T16:49:23.568122894Z"
