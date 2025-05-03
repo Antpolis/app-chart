@@ -8,6 +8,12 @@ app:
   environment: 
   port: 
 
+docker:
+  tag:
+  repo:
+  imagePullSecrets:
+    - name: dockerhub
+
 # Ingress Configuration (Always enabled)
 ingress:
   className: nginx

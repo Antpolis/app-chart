@@ -20,6 +20,10 @@ spec:
     spec:
       securityContext:
         fsGroup: 33  # Set the group ownership to match the 'www-data' user
+      {{- with .Values.docker.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: {{ .Release.Name }}-app
         image: {{ .Values.docker.repo }}:{{ .Values.docker.tag }}
