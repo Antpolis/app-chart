@@ -17,18 +17,10 @@ helm repo add antpolis https://antpolis.github.io/app-chart
 helm repo update
 
 # Install the chart from the repository
-helm install my-release antpolis/app-chart
+helm install my-release antpolis/antpolis-apps
 
 # Install with custom values
-helm install my-release antpolis/app-chart -f my-values.yaml
-
-# Or install directly from GitHub
-helm install my-release git+https://github.com/Antpolis/app-chart.git
-
-# Or first clone the repository
-git clone https://github.com/Antpolis/app-chart.git
-cd app-chart
-helm install my-release . -f my-values.yaml
+helm install my-release antpolis/antpolis-apps -f my-values.yaml
 ```
 
 ## Configuration
@@ -162,7 +154,7 @@ secrets:
 1. Create your custom values file based on the example above.
 2. Install the chart:
 ```bash
-helm install my-release . -f my-values.yaml
+helm install my-release antpolis/antpolis-apps -f my-values.yaml
 ```
 
 3. Verify the deployment:
@@ -174,15 +166,9 @@ kubectl get all -l "app.kubernetes.io/instance=my-release"
 
 To upgrade the release:
 ```bash
-# If installed from repository
-helm repo update  # Get the latest version
-helm upgrade my-release antpolis/app-chart -f my-values.yaml
-
-# Or if installed directly from GitHub
-helm upgrade my-release git+https://github.com/Antpolis/app-chart.git -f my-values.yaml
-
-# Or if you've cloned the repository:
-helm upgrade my-release . -f my-values.yaml
+# Get the latest version
+helm repo update
+helm upgrade my-release antpolis/antpolis-apps -f my-values.yaml
 ```
 
 ## Uninstalling
