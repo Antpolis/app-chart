@@ -27,9 +27,11 @@ spec:
       paths:  
         path: "/"
         pathType: "Prefix"
-        service:
-          name: "{{ .Release.Name }}-service"
-          port: {{ .Values.app.port }}
+        backend:
+          service:
+            name: "{{ .Release.Name }}-service"
+            port: 
+              number: {{ .Values.app.port }}
   {{- end }}
   {{- range .Values.ingress.domains }}
   - host: {{ .name }}
